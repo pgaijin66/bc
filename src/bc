@@ -1,0 +1,98 @@
+#!/usr/bin/env zsh
+
+set -o errexit
+set -o pipefail
+
+# Globals
+COMMIT_MSG_LEN=20
+
+error(){
+    echo "ERROR: $*" >&2
+}
+
+info(){
+    echo "INFO: $*" >&2
+}
+
+usage(){
+    cat <<EOF
+BetterCommit (bc) is a small utility which will help you make an habit of writing better commit messages.
+
+Usage: ${0##*/} <subcommands>
+
+Available commands:
+    add         Adds all the changes to staging area
+    commit      Adds and commits all the changes.
+
+Example usage:
+
+    ${0##*/} add
+
+EOF
+}
+
+
+function commit(){
+    local operation=$1
+    local ticket=$2
+    local commitmessage=$3
+    git add .
+    git commit -m "$operation($ticket): $operation $commitmessage"
+    echo "$operation($ticket): $operation $commitmessage"
+}
+
+function prepare_commit(){
+	read "TICKET?Is this commit related to any projects tickets / Components / features (eg: JIRA-124, button, vpc): "
+	read "OPERATION?Enter which git operation did you performed (eg: add, update, del): "
+    case "$OPERATION" in
+        add | update | del )
+            
+            ;;
+        *)
+            read -q "REPLY?Operation \"$OPERATION\" not understood. Do you want to continue (Y/N)?"
+            if [ $REPLY == "Y" ]; then
+                commit "$OPERATION" "$TICKET"
+            else
+                read
+                exit 1
+            fi
+            ;;
+    esac
+    read "COMMITMSG?What did you $OPERATION: "
+    messagelength=${#COMMITMSG}
+    if [[ "$messagelength" -le $COMMIT_MSG_LEN ]]; then
+        echo "COMMIT MESSAGE TOO SHORT. COMMIT MESSAGE SHOULD BE AT LEAST $COMMIT_MSG_LEN CHARS LONG."
+        commit "$OPERATION" "$TICKET"
+    fi
+}
+
+has_git(){
+    if [ ! -d ".git" ]; then info "This is not a git repo. I am not needed here. Ta Ta !!!"; exit 1; fi
+}
+
+function main(){
+    local commandName=$1; shift
+    case "$commandName" in
+        commit)
+            has_git
+            prepare_commit
+            ;;
+        help)
+            usage
+            exit 1
+            ;;
+        *)
+            error "Could not understand the command. Try running \"bc help\"."
+            exit 1
+            ;;
+    esac
+}
+
+if [ "$#" != 1 ]; then
+    info "Not enough argument provided."
+    echo ""
+    usage
+    exit 1
+fi
+
+main "$@"
