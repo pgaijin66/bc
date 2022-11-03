@@ -21,9 +21,9 @@ Example usage:
 
 ```
 
-### In Action
-![watch the video](assets/video.mp4)
+### See it live in action
 
+https://github.com/pgaijin66/bc/commits/main
 
 ### How it works
 
