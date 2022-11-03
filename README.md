@@ -56,10 +56,11 @@ What did you update: updated script to show modified files to help user add more
 
 ### Setup
 
-```
-% make build
-```
+1. Clone repository `git clone https://github.com/pgaijin66/bc.git`
 
+2. Run `make build`
+
+3. Reload terminal `sournce ~/.zshrc`
 
 
 
