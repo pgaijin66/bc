@@ -37,14 +37,14 @@ function commit(){
     local ticket=$2
     local commitmessage=$3
     git add .
-    info "Files modified"
-    git status --porcelain
     git commit -m "$operation($ticket): $commitmessage"
 }
 
 function prepare_commit(){
 	read "TICKET?Is this commit related to any projects tickets / Components / features (eg: JIRA-124, button, vpc): "
 	read "OPERATION?Enter which git operation did you performed (eg: add, update, del): "
+    info "Files modified"
+    git status --porcelain
     read "COMMITMSG?What did you $OPERATION: "
     case "$OPERATION" in
         add | update | del )
