@@ -21,25 +21,9 @@ Example usage:
 
 ```
 
-##### Before 
-```
-commit b81c906fc00eb28421bcbf3e1579b9f3cbf6cdd6
-Author: Prabesh Thapa <sthapaprabesh2020@gmail.com>
-Date:   Tue Nov 1 18:04:06 2022 -0700
+### In Action
+![watch the video](assets/video.mp4)
 
-    removing unwanted listings.go file
-```
-
-##### After
-
-```
-commit 1b1ef83XXXXXXXXXXX3614
-Author: Prabesh Thapa <sthapaprabesh2020@gmail.com>
-Date:   Wed Nov 2 16:04:28 2022 -0700
-
-    add(JIRA-1234): add validation and formatting of the commit message and added usage as well
-
-```
 
 ### How it works
 
