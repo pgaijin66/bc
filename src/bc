@@ -44,13 +44,12 @@ function commit(){
 function prepare_commit(){
 	read "TICKET?Is this commit related to any projects tickets / Components / features (eg: JIRA-124, button, vpc): "
 	read "OPERATION?Enter which git operation did you performed (eg: add, update, del): "
+    read "COMMITMSG?What did you $OPERATION: "
     case "$OPERATION" in
         add | update | del )
-            read "COMMITMSG?What did you $OPERATION: "
             messagelength=${#COMMITMSG}
             if [[ "$messagelength" -le $COMMIT_MSG_LEN ]]; then
                 echo "COMMIT MESSAGE TOO SHORT. COMMIT MESSAGE SHOULD BE AT LEAST $COMMIT_MSG_LEN CHARS LONG."
-                commit "$OPERATION" "$TICKET"
             fi
             ;;
         *)
@@ -58,6 +57,7 @@ function prepare_commit(){
             exit 1
             ;;
     esac
+    commit "$OPERATION" "$TICKET" "$COMMITMSG"
 
 }
 
