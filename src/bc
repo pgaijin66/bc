@@ -37,8 +37,9 @@ function commit(){
     local ticket=$2
     local commitmessage=$3
     git add .
-    git commit -m "$operation($ticket): $operation $commitmessage"
-    echo "$operation($ticket): $operation $commitmessage"
+    info "Files modified"
+    git status --porcelain
+    git commit -m "$operation($ticket): $commitmessage"
 }
 
 function prepare_commit(){

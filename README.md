@@ -2,18 +2,26 @@
 
 ![better-commit](assets/banner.png)
 
-Make yourself write better commit messages
+Make yourself write better commit messages.
 
+### Before 
+```
+commit b81c906fc00eb28421bcbf3e1579b9f3cbf6cdd6
+Author: Prabesh Thapa <sthapaprabesh2020@gmail.com>
+Date:   Tue Nov 1 18:04:06 2022 -0700
+
+    removing unwanted listings.go file
 ```
 
-commit 1b1ef83b3f1fcf1b7d84cd59c5bf3a5d2aef3614
+### After
+
+```
+commit 1b1ef83XXXXXXXXXXX3614
 Author: Prabesh Thapa <sthapaprabesh2020@gmail.com>
 Date:   Wed Nov 2 16:04:28 2022 -0700
 
     add(commit message): add validation and formatting of the commit message and added usage as well
 
-~
-~
 ```
 
 ## Setup
@@ -59,3 +67,9 @@ uninstall                      Uninstalls application
 ## Contributing guidelines
 
 Please create a PR for contribution to this project.
+
+## Disclaimer ;)
+
+```
+This is a tool i made for myself, as time and again i would get lazy and and skip the most important part while programming. There is no doubt that this work can be done with a simple function alias to `~/.zshrc` or `~/.bashrc` as well.
+```
