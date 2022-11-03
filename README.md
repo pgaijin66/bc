@@ -5,11 +5,6 @@
 Make yourself write better commit messages
 
 ```
-commit 8bc9062110eb9ee6f0263db76539be686e88fef0 (HEAD -> main)
-Author: Prabesh Thapa <sthapaprabesh2020@gmail.com>
-Date:   Wed Nov 2 16:58:15 2022 -0700
-
-    update(bc script): update
 
 commit 1b1ef83b3f1fcf1b7d84cd59c5bf3a5d2aef3614
 Author: Prabesh Thapa <sthapaprabesh2020@gmail.com>

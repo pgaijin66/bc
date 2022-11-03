@@ -46,24 +46,19 @@ function prepare_commit(){
 	read "OPERATION?Enter which git operation did you performed (eg: add, update, del): "
     case "$OPERATION" in
         add | update | del )
-            
-            ;;
-        *)
-            read -q "REPLY?Operation \"$OPERATION\" not understood. Do you want to continue (Y/N)?"
-            if [ $REPLY == "Y" ]; then
+            read "COMMITMSG?What did you $OPERATION: "
+            messagelength=${#COMMITMSG}
+            if [[ "$messagelength" -le $COMMIT_MSG_LEN ]]; then
+                echo "COMMIT MESSAGE TOO SHORT. COMMIT MESSAGE SHOULD BE AT LEAST $COMMIT_MSG_LEN CHARS LONG."
                 commit "$OPERATION" "$TICKET"
-            else
-                read
-                exit 1
             fi
             ;;
+        *)
+            read -q "REPLY?Operation \"$OPERATION\" not understood."
+            exit 1
+            ;;
     esac
-    read "COMMITMSG?What did you $OPERATION: "
-    messagelength=${#COMMITMSG}
-    if [[ "$messagelength" -le $COMMIT_MSG_LEN ]]; then
-        echo "COMMIT MESSAGE TOO SHORT. COMMIT MESSAGE SHOULD BE AT LEAST $COMMIT_MSG_LEN CHARS LONG."
-        commit "$OPERATION" "$TICKET"
-    fi
+
 }
 
 has_git(){
