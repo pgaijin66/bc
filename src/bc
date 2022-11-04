@@ -22,7 +22,8 @@ Usage: ${0##*/} <subcommands>
 
 Available commands:
     add         Adds all the changes to staging area
-    commit      Adds and commits all the changes.
+    commit      Adds and commits all the changes
+    branch      Creates a new branch
 
 Example usage:
 
@@ -62,8 +63,21 @@ function prepare_commit(){
 
 }
 
-has_git(){
+function has_git(){
     if [ ! -d ".git" ]; then info "This is not a git repo. I am not needed here. Ta Ta !!!"; exit 1; fi
+}
+
+
+function branch(){
+    local branch_name
+    local sanitized_branch_name
+	read "TICKET?Is this commit related to any projects tickets / Components / features (eg: JIRA-124, button, vpc): "
+	read "OPERATION?What kind of work is this (eg: bugfix, feat, demo, test): "
+    read "WORK?What work will be done in this branch: "
+    branch_name="$OPERATION/$TICKET/$WORK"
+    # Sanitize branch name by removing all the spaces with dash "-"
+    sanitized_branch_name=${branch_name// /-}
+    git checkout -b "$sanitized_branch_name"
 }
 
 function main(){
@@ -72,6 +86,9 @@ function main(){
         commit)
             has_git
             prepare_commit
+            ;;
+        branch)
+            branch
             ;;
         help)
             usage
