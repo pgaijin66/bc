@@ -25,9 +25,6 @@ Example usage:
 
 ```
 
-### See it live in action
-
-https://github.com/pgaijin66/bc/commits/main
 
 ### How it works
 
@@ -65,6 +62,7 @@ uninstall                      Uninstalls application
 
 - [X] Prettify and format commit message.
 - [X] Stop committting and pushing changes to main branch.
+- [X] Create querable branches.
 - [X] Make compatible with `bash` as well. Currently works on `zsh` 
 - [ ] Allow use to interactively choose which files to commit.
 - [ ] interactively cherry pick commits from one branch to another.
@@ -79,3 +77,10 @@ Please create a PR for contribution to this project.
 ```
 This is a tool i made for myself, as time and again i would get lazy and and skip the most important part while programming ( write good commit messages ). There is no doubt that this work can be done with a simple function alias to `~/.zshrc` or `~/.bashrc` as well but why make it easy when you can add multiple layers of encapsulation ;). After all that is what automation is right. :P 
 ```
+
+
+### See it live in action
+
+Commits: https://github.com/pgaijin66/bc/commits/main
+
+Branches: https://github.com/pgaijin66/bc/branches
