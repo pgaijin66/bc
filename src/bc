@@ -81,7 +81,7 @@ function commit(){
     res=$(is_main_branch "$current_branch_name")
     if [[ $res == true ]];then 
         echo ""
-        error "Cannot commit to $MAIN_BRANCH branch. Please create a new branch using \"bc branch\""
+        error "Not recommended to commit to $MAIN_BRANCH branch. Please create a new branch using \"bc branch\""
         exit 1
     fi
 
@@ -107,7 +107,7 @@ function push(){
     local current_branch_name
     current_branch_name=$(get_current_branch_name)
     res=$(is_main_branch "$current_branch_name")
-    if [[ $res == true ]]; then error "Cannot push to main branch. Please create a new branch using \"bc branch\""; exit 1; fi
+    if [[ $res == true ]]; then error "Not recommended to push to main branch. Please create a new branch using \"bc branch\""; exit 1; fi
 
     if [[ $(git status --porcelain | wc -l ) -ne 0 ]];then 
         read -r -p "There are still changes to be committed. Are you sure you want to push? [y/N] " response
