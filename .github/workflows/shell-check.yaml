@@ -1,7 +1,9 @@
+name: shellcheck
 on:
   push:
     branches:
-      - master
+      - main
+  pull_request:
 
 name: "Trigger: Push action"
 
