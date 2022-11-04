@@ -60,7 +60,8 @@ uninstall                      Uninstalls application
 
 ## Features
 
-- [X] Prettify and format commit message
+- [X] Prettify and format commit message.
+- [X] Stop committting and pushing changes to main branch.
 - [ ] Allow use to interactively choose which files to commit.
 - [ ] Make compatible with `bash` as well. Currently works on `zsh` 
 - [ ] interactively cherry pick commits from one branch to another.

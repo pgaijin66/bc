@@ -5,6 +5,7 @@ set -o pipefail
 
 # Globals
 COMMIT_MSG_LEN=20
+MAIN_BRANCH="main"
 
 error(){
     echo "ERROR: $*" >&2
@@ -32,13 +33,20 @@ Example usage:
 EOF
 }
 
+# helper functions
+function has_git(){
+    if [ ! -d ".git" ]; then info "This is not a git repo. I am not needed here. Ta Ta !!!"; exit 1; fi
+}
 
-function commit(){
-    local operation=$1
-    local ticket=$2
-    local commitmessage=$3
-    git add .
-    git commit -m "$operation($ticket): $commitmessage"
+function is_main_branch(){
+    local branch_name=$1
+    if [[ $current_branch_name == "$MAIN_BRANCH" ]];then echo true; else echo false; fi
+}
+
+function get_current_branch_name(){
+    local current_branch_name
+    current_branch_name=$(git rev-parse --abbrev-ref HEAD)
+    echo $current_branch_name
 }
 
 function prepare_commit(){
@@ -63,10 +71,24 @@ function prepare_commit(){
 
 }
 
-function has_git(){
-    if [ ! -d ".git" ]; then info "This is not a git repo. I am not needed here. Ta Ta !!!"; exit 1; fi
-}
+function commit(){
+    local operation=$1
+    local ticket=$2
+    local commitmessage=$3
+    
+    local current_branch_name
+    current_branch_name=$(get_current_branch_name)
+    res=$(is_main_branch "$current_branch_name")
+    echo $res
+    if [[ $res == true ]];then 
+        echo ""
+        error "Cannot commit to $MAIN_BRANCH branch. Please create a new branch using \"bc branch\""
+        exit 1
+    fi
 
+    git add .
+    git commit -m "$operation($ticket): $commitmessage"
+}
 
 function branch(){
     local branch_name
@@ -80,6 +102,14 @@ function branch(){
     git checkout -b "$sanitized_branch_name"
 }
 
+function push(){
+    local current_branch_name
+    current_branch_name=$(get_current_branch_name)
+    res=$(is_main_branch "$current_branch_name")
+    if [[ $res ]]; then error "Cannot push to main branch. Please create a new branch using \"bc branch\""; exit 1; usage; fi
+    git push --set-upstream origin $current_branch_name
+}
+
 function main(){
     local commandName=$1; shift
     case "$commandName" in
@@ -89,6 +119,9 @@ function main(){
             ;;
         branch)
             branch
+            ;;
+        push)
+            push
             ;;
         help)
             usage
