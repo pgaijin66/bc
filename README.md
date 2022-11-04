@@ -58,13 +58,28 @@ There are still changes to be committed. Are you sure you want to push? [y/N]
 ```
 
 ##### `bc branch`
+
+bc allows you to create queryable git branches.
+
 ```
 % bc branch
 
-Is this commit related to any projects tickets / Components / features (eg: JIRA-124, button, vpc): bc
+Is this commit related to any projects tickets / Components / features (eg: JIRA-124, button, vpc): certs
 What kind of work is this (eg: bugfix, feat, demo, test): feat
-What work will be done in this branch: update readme
-Switched to a new branch 'feat/bc/update-readme'
+What work will be done in this branch: Add support for application to run TLS natively
+Switched to a new branch 'feat/certs/Add-support-for-application-to-run-TLS-natively'
+```
+
+At the end you are left with this clean sexy looking git friendly branch
+
+`feat/certs/Add-support-for-application-to-run-TLS-natively`
+
+which you are query ( suppose if i want to see how many people are working on features ) now i could just do
+
+```
+git branch --list "feat/*"
+  feat/cert/create-a-new-self-signed-certificate
+* feat/certs/Add-support-for-application-to-run-TLS-natively
 ```
 
 ### Setup
