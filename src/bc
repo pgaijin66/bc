@@ -123,6 +123,7 @@ function push(){
                 ;;
         esac
     fi
+    git push --set-upstream origin $current_branch_name
 }
 
 function main(){
