@@ -7,17 +7,21 @@ Make yourself write better commit messages.
 ### Usage
 
 ```
+% bc help
+
 BetterCommit (bc) is a small utility which will help you make an habit of writing better commit messages.
 
 Usage: bc <subcommands>
 
 Available commands:
     add         Adds all the changes to staging area
-    commit      Adds and commits all the changes.
+    commit      Adds and commits all the changes
+    branch      Creates a new branch
 
 Example usage:
 
     bc add
+
 
 ```
 
@@ -44,11 +48,10 @@ What did you update: updated script to show modified files to help user add more
 
 2. Run `make build`
 
-3. Reload terminal `sournce ~/.zshrc`
+3. Reload terminal `sournce ~/.zshrc` if you are using `zsh` shell.
 
 
-
-### Help
+### Setup help
 ```
 % make help
 
@@ -62,8 +65,8 @@ uninstall                      Uninstalls application
 
 - [X] Prettify and format commit message.
 - [X] Stop committting and pushing changes to main branch.
+- [X] Make compatible with `bash` as well. Currently works on `zsh` 
 - [ ] Allow use to interactively choose which files to commit.
-- [ ] Make compatible with `bash` as well. Currently works on `zsh` 
 - [ ] interactively cherry pick commits from one branch to another.
 - [ ] Make reabasing easy
 

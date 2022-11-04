@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
 set -o errexit
 set -o pipefail
@@ -50,11 +50,11 @@ function get_current_branch_name(){
 }
 
 function prepare_commit(){
-	read "TICKET?Is this commit related to any projects tickets / Components / features (eg: JIRA-124, button, vpc): "
-	read "OPERATION?Enter which git operation did you performed (eg: add, update, del): "
+    read -r -p "Is this commit related to any projects tickets / Components / features (eg: JIRA-124, button, vpc): " TICKET
+    read -r -p "Enter which git operation did you performed (eg: add, update, del): " OPERATION
     info "Files modified"
     git status --porcelain
-    read "COMMITMSG?What did you $OPERATION: "
+    read -r -p "What did you $OPERATION: " COMMITMSG
     case "$OPERATION" in
         add | update | del )
             messagelength=${#COMMITMSG}
@@ -93,9 +93,11 @@ function commit(){
 function branch(){
     local branch_name
     local sanitized_branch_name
-	read "TICKET?Is this commit related to any projects tickets / Components / features (eg: JIRA-124, button, vpc): "
-	read "OPERATION?What kind of work is this (eg: bugfix, feat, demo, test): "
-    read "WORK?What work will be done in this branch: "
+
+	read -r -p "Is this commit related to any projects tickets / Components / features (eg: JIRA-124, button, vpc): " TICKET
+	read -r -p "What kind of work is this (eg: bugfix, feat, demo, test): " OPERATION
+    read -r -p "What work will be done in this branch: " WORK
+
     branch_name="$OPERATION/$TICKET/$WORK"
     # Sanitize branch name by removing all the spaces with dash "-"
     sanitized_branch_name=${branch_name// /-}
@@ -106,8 +108,21 @@ function push(){
     local current_branch_name
     current_branch_name=$(get_current_branch_name)
     res=$(is_main_branch "$current_branch_name")
-    if [[ $res ]]; then error "Cannot push to main branch. Please create a new branch using \"bc branch\""; exit 1; usage; fi
-    git push --set-upstream origin $current_branch_name
+    if [[ $res == true ]]; then error "Cannot push to main branch. Please create a new branch using \"bc branch\""; exit 1; fi
+
+    if [[ $(git status --porcelain | wc -l ) -ne 0 ]];then 
+        read -r -p "There are still changes to be committed. Are you sure you want to push? [y/N] " response
+        echo $response
+        case "$response" in
+            [yY][eE][sS]|[yY])
+                git push --set-upstream origin $current_branch_name
+                ;;
+            *)
+                info "Please commit the changes using \"bc commit\""
+                exit 1
+                ;;
+        esac
+    fi
 }
 
 function main(){

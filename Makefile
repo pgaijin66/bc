@@ -3,7 +3,7 @@ PATH_TO_BIN := ${CUR_DIR}/src
 LIB_PATH := /usr/local/bin
 FILE_PERM := 755
 APP_NAME := bc
-SHELL := /bin/zsh
+SHELL := /bin/bash
 
 
 .DEFAULT_GOAL := help
@@ -15,7 +15,7 @@ build: ## Installs binary to standard library PATH4
 	rm -rf ${LIB_PATH}/${APP_NAME}
 	cp ${PATH_TO_BIN}/${APP_NAME} ${LIB_PATH}
 	chmod ${FILE_PERM} ${LIB_PATH}/${APP_NAME}
-	source ~/.zshrc
+	source ~/.bash_profile
 
 .PHONY: uninstall
 uninstall: ## Uninstalls application
