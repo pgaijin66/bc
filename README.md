@@ -46,7 +46,7 @@ bc does not allow to push in main branch.
 ```
 % bc push
 
-ERROR: Cannot push to main branch. Please create a new branch using "bc branch"
+ERROR: Not recommended to push to main branch. Please create a new branch using "bc branch"
 ```
 
 bc prompts you if try to push and still have some pending changes to be committed.
