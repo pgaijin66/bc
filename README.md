@@ -74,7 +74,7 @@ At the end you are left with this clean sexy looking git friendly branch
 
 `feat/certs/Add-support-for-application-to-run-TLS-natively`
 
-which you are query ( suppose if i want to see how many people are working on features ) now i could just do
+which you can query ( suppose if i want to see how many people are working on features ) now i could just do
 
 ```
 git branch --list "feat/*"
