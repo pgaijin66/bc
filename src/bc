@@ -71,6 +71,10 @@ function prepare_commit(){
 
 }
 
+function add(){
+    git add .
+}
+
 function commit(){
     local operation=$1
     local ticket=$2
@@ -131,10 +135,16 @@ function main(){
             has_git
             prepare_commit
             ;;
+        add)
+            has_git
+            add
+            ;;
         branch)
+            has_git
             branch
             ;;
         push)
+            has_git
             push
             ;;
         help)
