@@ -15,7 +15,7 @@ build: ## Installs binary to standard library PATH4
 	rm -rf ${LIB_PATH}/${APP_NAME}
 	cp ${PATH_TO_BIN}/${APP_NAME} ${LIB_PATH}
 	chmod ${FILE_PERM} ${LIB_PATH}/${APP_NAME}
-	source ~/.bash_profile
+	source ~/.zshrc
 
 .PHONY: uninstall
 uninstall: ## Uninstalls application
