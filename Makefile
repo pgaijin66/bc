@@ -20,3 +20,9 @@ build: ## Installs binary to standard library PATH4
 .PHONY: uninstall
 uninstall: ## Uninstalls application
 	rm -rf ${LIB_PATH}/${APP_NAME}
+
+
+.PHONY: tag-n-release
+tag-n-release:
+	git tag -a v1.0.0
+
