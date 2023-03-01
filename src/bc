@@ -167,7 +167,6 @@ function create_pr(){
 
     updated_title="$prTicket($prType): $prTitle"
 
-
     local prBody=$(cat <<EOF
 # Change Description
 
@@ -207,7 +206,7 @@ EOF
                     -H "Authorization: Bearer $gh_token" \
                     -H "X-GitHub-Api-Version: 2022-11-28" \
                     "$github_url" \
-                     -d '{ "title": "asd(asd): asd", "body": "# Change Description\n\nasd\n\n-------------------------------------------\n\n\n# Type of PR\n\n- [X] asd\n\n-------------------------------------------\n\n\n# Type of Change\n\n- [X] asd\n\n-------------------------------------------\n\n## Checklist before requesting a review\n- [X] I have performed a self-review of my code\n- [X] I am ready to get this code reviewed\n- [X] I have locally tested this code against linting and validating.", "head": "feat/bc/Add-pr-from-terminal-command", "base": "main" }'
+                     -d "$payloadJson"
 
 
 }
