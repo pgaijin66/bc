@@ -29,7 +29,7 @@ Available commands:
 
 Example usage:
 
-    ${0##*/} add
+    $ ${0##*/} add
 
 EOF
 }
@@ -60,7 +60,7 @@ function prepare_commit(){
         add | update | del )
             messagelength=${#COMMITMSG}
             if [[ "$messagelength" -le $COMMIT_MSG_LEN ]]; then
-                echo "COMMIT MESSAGE TOO SHORT. COMMIT MESSAGE SHOULD BE AT LEAST $COMMIT_MSG_LEN CHARS LONG."
+                info "COMMIT MESSAGE TOO SHORT. COMMIT MESSAGE SHOULD BE AT LEAST $COMMIT_MSG_LEN CHARS LONG."
             fi
             ;;
         *)
@@ -70,6 +70,13 @@ function prepare_commit(){
     esac
     commit "$OPERATION" "$TICKET" "$COMMITMSG"
 
+}
+
+function is_branch_exists_in_origin(){
+    local branchName=$1
+    val=$(git ls-remote --heads origin "$branchName" | wc -l)
+    echo $val
+    if [[ $val > 0 ]];then echo true; else echo false; fi
 }
 
 function add(){
@@ -130,6 +137,15 @@ function push(){
 }
 
 function create_pr(){
+    local current_branch_name
+    current_branch_name=$(get_current_branch_name)
+    res=$(is_branch_exists_in_origin "$current_branch_name")
+    if [[ $res == false ]];then 
+        echo ""
+        error "Branch: "$current_branch_name" has not been pushed to origin. Please push and try again. Try running \"bc push\" or \"bc help\""
+        exit 1
+    fi
+
     local repositoryName=$(basename `git rev-parse --show-toplevel`)
     local gh_token="$GH_TOKEN"
     local repoOwner=$(git remote -v | tail -1 | awk -F ':' '{print $2}' | cut -d "/" -f 1)
@@ -191,7 +207,8 @@ EOF
                     -H "Authorization: Bearer $gh_token" \
                     -H "X-GitHub-Api-Version: 2022-11-28" \
                     "$github_url" \
-                     -d "$payloadJson"
+                     -d '{ "title": "asd(asd): asd", "body": "# Change Description\n\nasd\n\n-------------------------------------------\n\n\n# Type of PR\n\n- [X] asd\n\n-------------------------------------------\n\n\n# Type of Change\n\n- [X] asd\n\n-------------------------------------------\n\n## Checklist before requesting a review\n- [X] I have performed a self-review of my code\n- [X] I am ready to get this code reviewed\n- [X] I have locally tested this code against linting and validating.", "head": "feat/bc/Add-pr-from-terminal-command", "base": "main" }'
+
 
 }
 
