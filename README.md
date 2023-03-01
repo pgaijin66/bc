@@ -4,6 +4,24 @@
 
 This project started to make yourself write better commit messages but later got extended to make your git journey much easier.
 
+# Table of contents
+
+- [BetterCommit (bc)](#bettercommit-bc)
+- [Table of contents](#table-of-contents)
+    - [Usage](#usage)
+    - [Commands](#commands)
+        - [`bc commit`](#bc-commit)
+        - [`bc push`](#bc-push)
+        - [`bc branch`](#bc-branch)
+        - [`bc pr`](#bc-pr)
+    - [Steps to generate GH PAT( Personal Access Token):*](#steps-to-generate-gh-pat-personal-access-token)
+    - [Setup](#setup)
+    - [Setup help](#setup-help)
+  - [Features](#features)
+    - [Contributing guidelines](#contributing-guidelines)
+    - [Disclaimer ;)](#disclaimer-)
+    - [See it live in action](#see-it-live-in-action)
+
 ### Usage
 
 ```
@@ -104,7 +122,7 @@ When you are done, `bc` will check if the branch has been pushed to origin or no
 
 *NOTE: To use this command, you would need to generate GH PAT ( Personal Access Token)*
 
-*Steps to generate GH PAT( Personal Access Token):*
+### Steps to generate GH PAT( Personal Access Token):*
 
 1. Go to 'Profile > Settting'
 2. Click on 'Developer settings'
@@ -132,17 +150,18 @@ echo 'export GH_TOKEN="github_pat_1....REDACTED"' >> ~/.bash_rc
 
 1. Clone repository `git clone https://github.com/pgaijin66/bc.git`
 
-2. Run `make build`
+2. Navigate to the cloned directory.
 
-3. Reload terminal `sournce ~/.zshrc` if you are using `zsh` shell.
+3. Run `make install` to install
 
 
 ### Setup help
 ```
 % make help
 
-build                          Installs binary to standard library PATH
 help                           List targets & descriptions
+install                        Installs binary to standard library PATH4
+tag-n-release                  Tags and pushes
 uninstall                      Uninstalls application
 ```
 
