@@ -16,7 +16,7 @@ This project started to make yourself write better commit messages but later got
         - [`bc pr`](#bc-pr)
     - [Steps to generate GH PAT( Personal Access Token):*](#steps-to-generate-gh-pat-personal-access-token)
     - [Setup](#setup)
-    - [Setup help](#setup-help)
+    - [Help](#help)
   - [Features](#features)
     - [Contributing guidelines](#contributing-guidelines)
     - [Disclaimer ;)](#disclaimer-)
@@ -155,7 +155,8 @@ echo 'export GH_TOKEN="github_pat_1....REDACTED"' >> ~/.bash_rc
 3. Run `make install` to install
 
 
-### Setup help
+### Help
+
 ```
 % make help
 
