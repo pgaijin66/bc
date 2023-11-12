@@ -19,12 +19,11 @@ source ./src/bc
 
 @test "is_main_branch returns false for non-main branch" {
     local result=$(is_main_branch "feature-branch")
-    echo $result
     [ "$result" = "false" ]
 }
 
 # Tests for the get_current_branch_name function
 @test "get_current_branch_name returns the correct branch name" {
     local result=$(get_current_branch_name)
-    [ "$result" = "main" ]  # Change this to the expected current branch name
+    [ "$result" = "main" ] 
 }
