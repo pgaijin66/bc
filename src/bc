@@ -75,8 +75,7 @@ function prepare_commit(){
 function is_branch_exists_in_origin(){
     local branchName=$1
     val=$(git ls-remote --heads origin "$branchName" | wc -l)
-    echo $val
-    if [[ $val > 0 ]];then echo true; else echo false; fi
+    if [[ "$val" -gt 0 ]];then echo true; else echo false; fi
 }
 
 function add(){
@@ -138,21 +137,25 @@ function push(){
 
 function create_pr(){
     local current_branch_name
+    local repositoryName
+    local gh_token
+
     current_branch_name=$(get_current_branch_name)
     res=$(is_branch_exists_in_origin "$current_branch_name")
     if [[ $res == false ]];then 
         echo ""
-        error "Branch: "$current_branch_name" has not been pushed to origin. Please push and try again. Try running \"bc push\" or \"bc help\""
+        error "Branch: \"$current_branch_name\" has not been pushed to origin. Please push and try again. Try running \"bc push\" or \"bc help\""
         exit 1
     fi
 
-    local repositoryName=$(basename `git rev-parse --show-toplevel`)
-    local gh_token="$GH_TOKEN"
-    local repoOwner=$(git remote -v | tail -1 | awk -F ':' '{print $2}' | cut -d "/" -f 1)
-    local baseBranch="main"
+    repositoryName="$(basename "$(git rev-parse --show-toplevel)")"
+    gh_token="$GH_TOKEN"
+    repoOwner=$(git remote -v | tail -1 | awk -F ':' '{print $2}' | cut -d "/" -f 1)
+    
     read -r -p "Title of the Pull Request: " prTitle
     read -r -p "Is this PR associated with any ticket (eg: JIRA-124]): " prTicket
     printf "Explain work done in this PR (When finished hit ctrl-d on a new line to proceed):\n"
+    
     # this will load the user's input into a variable instead of a file 
     prMessage="" 
     prMessage+=$( xargs -0 ) 
@@ -167,7 +170,8 @@ function create_pr(){
 
     updated_title="$prTicket($prType): $prTitle"
 
-    local prBody=$(cat <<EOF
+    local prBody
+    prBody=$(cat <<EOF
 # Change Description
 
 $prMessage
