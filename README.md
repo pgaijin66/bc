@@ -182,12 +182,9 @@ uninstall                      Uninstalls application
 
 Please create a PR for contribution to this project.
 
-### Disclaimer ;)
+### Disclaimer
 
-```
-This is a tool i made for myself, as time and again i would get lazy and and skip the most important part while programming ( write good commit messages ). There is no doubt that this work can be done with a simple function alias to `~/.zshrc` or `~/.bashrc` as well but why make it easy when you can add multiple layers of encapsulation ;). After all that is what automation is right. :P 
-```
-
+This is a tool i made for myself, as time and again i would get lazy and and skip the most important part while programming ( write good commit messages ). There is no doubt that this work can be done with a simple function alias to `~/.zshrc` or `~/.bashrc` as well but why make it easy when you can add multiple layers of encapsulation. After all that is what automation is right. :P 
 
 ### See it live in action
 

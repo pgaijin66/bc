@@ -41,7 +41,12 @@ function has_git(){
 
 function is_main_branch(){
     local branch_name=$1
-    if [[ $current_branch_name == "$MAIN_BRANCH" ]];then echo true; else echo false; fi
+    if [[ $branch_name == "$MAIN_BRANCH" ]];
+    then
+        echo true; 
+    else 
+        echo false; 
+    fi
 }
 
 function get_current_branch_name(){
@@ -247,14 +252,20 @@ function main(){
             exit 1
             ;;
         *)
+            echo "$commandName"
             error "Could not understand the command. Try running \"bc help\"."
             exit 1
             ;;
     esac
 }
 
+# Check if the script is being sourced
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+    return
+fi
 
-if [ "$#" != 1 ]; then
+if [ "$#" == 0 ]; then
+    echo $#
     info "Not enough argument provided."
     echo ""
     usage
