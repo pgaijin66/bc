@@ -52,6 +52,8 @@ Example usage:
 
 Opens relevant git repository in browser
 
+*DEMO:* [bc-open](assets/bc-open.mp4)
+
 ##### `bc commit`
 ```
 % bc commit
