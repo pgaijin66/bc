@@ -52,7 +52,10 @@ Example usage:
 
 Opens relevant git repository in browser
 
-*DEMO:* [bc-open](assets/bc-open.mp4)
+*DEMO:* ![bc-open](https://github.com/pgaijin66/bc/blob/main/assets/bc-open.mp4)
+
+https://github.com/pgaijin66/bc/blob/main/assets/bc-open.mp4
+
 
 ##### `bc commit`
 ```

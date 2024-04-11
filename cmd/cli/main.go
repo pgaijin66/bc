@@ -2,8 +2,12 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"runtime"
@@ -191,6 +195,146 @@ func openBrowser() {
 	}
 }
 
+func isBranchExistsInOrigin(branchName string) bool {
+	cmd := exec.Command("git", "ls-remote", "--exit-code", ".", branchName)
+	err := cmd.Run()
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func createPr() {
+	currentBranchName, _ := getCurrentBranchName()
+
+	if !isBranchExistsInOrigin(currentBranchName) {
+		fmt.Println("Branch:", currentBranchName, "has not been pushed to origin. Please push and try again.")
+		os.Exit(1)
+	}
+
+	repoPathCmd := exec.Command("git", "rev-parse", "--show-toplevel")
+	repoPathOut, err := repoPathCmd.Output()
+	if err != nil {
+		fmt.Println("Error getting repository path:", err)
+		os.Exit(1)
+	}
+	repositoryName := strings.TrimSpace(string(bytes.TrimSpace(repoPathOut)))
+	repoOwnerCmd := exec.Command("git", "remote", "-v")
+	remoteOutput, err := repoOwnerCmd.Output()
+	if err != nil {
+		fmt.Println("Error getting remote information:", err)
+		os.Exit(1)
+	}
+	remoteURL := string(remoteOutput)
+	remoteURLLines := strings.Split(remoteURL, "\n")
+	lastRemoteLine := remoteURLLines[len(remoteURLLines)-1]
+	remoteParts := strings.Fields(lastRemoteLine)
+	repoOwnerParts := strings.Split(remoteParts[1], "/")
+	repoOwner := repoOwnerParts[len(repoOwnerParts)-2]
+
+	var prTitle, prTicket, prType, prChangeType, srcBranch, destBranch string
+
+	fmt.Print("Title of the Pull Request: ")
+	fmt.Scanln(&prTitle)
+
+	fmt.Print("Is this PR associated with any ticket (eg: JIRA-124): ")
+	fmt.Scanln(&prTicket)
+
+	fmt.Println("Explain work done in this PR (When finished hit ctrl-d on a new line to proceed):")
+	scanner := bufio.NewScanner(os.Stdin)
+	var prMessage strings.Builder
+	for scanner.Scan() {
+		prMessage.WriteString(scanner.Text())
+		prMessage.WriteString("\n")
+	}
+	fmt.Print("PR type (eg: SHOW, SHIP. ASK): ")
+	fmt.Scanln(&prType)
+
+	fmt.Print("What kind of change is this (eg: Bufix, Feature, Breaking Change, Doc update): ")
+	fmt.Scanln(&prChangeType)
+
+	fmt.Print("Source branch name: ")
+	fmt.Scanln(&srcBranch)
+
+	fmt.Print("Destination branch name: ")
+	fmt.Scanln(&destBranch)
+
+	updatedTitle := fmt.Sprintf("%s(%s): %s", prTicket, prType, prTitle)
+
+	prBody := fmt.Sprintf(`# Change Description
+
+%s
+
+-------------------------------------------
+
+
+# Type of PR
+
+- [X] %s
+
+-------------------------------------------
+
+
+# Type of Change
+
+- [X] %s
+
+-------------------------------------------
+
+## Checklist before requesting a review
+- [X] I have performed a self-review of my code
+- [X] I am ready to get this code reviewed
+- [X] I have locally tested this code against linting and validating.`, prMessage.String(), prType, prChangeType)
+
+	payload := map[string]string{
+		"title": updatedTitle,
+		"body":  prBody,
+		"head":  srcBranch,
+		"base":  destBranch,
+	}
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		fmt.Println("Error marshaling payload:", err)
+		os.Exit(1)
+	}
+
+	ghToken := os.Getenv("GH_TOKEN")
+	if ghToken == "" {
+		fmt.Println("GitHub token not set")
+		os.Exit(1)
+	}
+
+	githubURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/pulls", repoOwner, repositoryName)
+	req, err := http.NewRequest("POST", githubURL, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		fmt.Println("Error creating HTTP request:", err)
+		os.Exit(1)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+ghToken)
+	req.Header.Set("Accept", "application/vnd.github+json")
+	req.Header.Set("X-GitHub-Api-Version", "2022-11-28")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error making HTTP request:", err)
+		os.Exit(1)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("Response Status:", resp.Status)
+	fmt.Println("Response Body:", string(body))
+}
+
 func main() {
 	if !hasGit() {
 		fmt.Println("This is not a git repo. I am not needed here. Ta Ta !!!")
@@ -219,6 +363,7 @@ func main() {
 	case "help":
 		usage()
 	case "pr":
+		createPr()
 		// Handle pull request creation
 		fmt.Println("Pull request creation functionality is not implemented yet.")
 		os.Exit(1)
