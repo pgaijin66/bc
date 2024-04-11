@@ -10,6 +10,7 @@ This project started to make yourself write better commit messages but later got
 - [Table of contents](#table-of-contents)
     - [Usage](#usage)
     - [Commands](#commands)
+        - [`bc open`](#bc-open)
         - [`bc commit`](#bc-commit)
         - [`bc push`](#bc-push)
         - [`bc branch`](#bc-branch)
@@ -27,6 +28,7 @@ This project started to make yourself write better commit messages but later got
 ```
 % bc help
 
+Usage:
 BetterCommit (bc) is a small utility which will help you make an habit of writing better commit messages.
 
 Usage: bc <subcommands>
@@ -36,14 +38,19 @@ Available commands:
     commit      Adds and commits all the changes
     branch      Creates a new branch
     pr          Creates a new pull request
+    open        Open relevant repo in browser
 
 Example usage:
 
-    $ bc add
+    $ bc open
 
 ```
 
 ### Commands
+
+##### `bc open`
+
+Opens relevant git repository in browser
 
 ##### `bc commit`
 ```

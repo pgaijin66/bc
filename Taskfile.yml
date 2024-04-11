@@ -4,6 +4,13 @@ vars:
   APP_NAME: "bc"
 
 tasks:
-  build:
+  build-osx:
     cmds:
       - CGO_ENABLED=0 GOOS=darwin go build -a -installsuffix cgo -o bin/{{.APP_NAME}}-darwin ./cmd/cli/main.go
+
+  install-osx:
+    cmds:
+      - sudo rm -rf /usr/local/bin/bc
+      - sudo mv bin/bc-darwin /usr/local/bin/
+      - sudo mv /usr/local/bin/bc-darwin /usr/local/bin/bc
+      - chmod +x /usr/local/bin/bc
