@@ -13,17 +13,25 @@ import (
 // Globals
 const (
 	CommitMsgLen = 20
-	MainBranch   = "main"
 )
+
+var MainBranchOptions = []string{"main", "master"}
 
 // Helper functions
 func hasGit() bool {
-	_, err := os.Stat(".git")
-	return !os.IsNotExist(err)
+	// _, err := os.Stat(".git")
+	cmd := exec.Command("git", "rev-parse", "--is-inside-work-tree")
+	_, err := cmd.Output()
+	return err == nil
 }
 
-func isMainBranch(branchName string) bool {
-	return branchName == MainBranch
+func isMainBranch(branchName string, mainBranches []string) bool {
+	for _, mainBranch := range mainBranches {
+		if branchName == mainBranch {
+			return true
+		}
+	}
+	return false
 }
 
 func getCurrentBranchName() (string, error) {
@@ -73,9 +81,9 @@ func commit(operation, ticket, commitMsg string) {
 		os.Exit(1)
 	}
 
-	if isMainBranch(currentBranchName) {
+	if isMainBranch(currentBranchName, MainBranchOptions) {
 		fmt.Println()
-		fmt.Println("Not recommended to commit to", MainBranch, "branch. Please create a new branch using \"bc branch\"")
+		fmt.Println("Not recommended to commit to", strings.Join(MainBranchOptions, " or "), "branch. Please create a new branch using \"bc branch\"")
 		os.Exit(1)
 	}
 
@@ -108,7 +116,7 @@ func push() {
 		os.Exit(1)
 	}
 
-	if isMainBranch(currentBranchName) {
+	if isMainBranch(currentBranchName, MainBranchOptions) {
 		fmt.Println("Not recommended to push to main branch. Please create a new branch using \"bc branch\"")
 		os.Exit(1)
 	}
@@ -130,12 +138,6 @@ func push() {
 		exec.Command("git", "push", "--set-upstream", "origin", currentBranchName).Run()
 	}
 }
-
-// var defaultURLOpen = map[string]string{
-// 	"linux":   "xdg-open",
-// 	"windows": "rundll32",
-// 	"darwin":  "open",
-// }
 
 func openURL(url string) error {
 	var err error
