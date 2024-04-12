@@ -164,7 +164,9 @@ echo 'export GH_TOKEN="github_pat_1....REDACTED"' >> ~/.bash_rc
 
 2. Navigate to the cloned directory.
 
-3. Run `make install` to install
+3. Run `task install-osx` to install
+
+*Note: I am working on setting up installation via homebrew, however for now you can install it using task install-osx. You might have to install go-task for thos*
 
 
 ### Help
