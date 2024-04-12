@@ -5,11 +5,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 )
@@ -196,16 +197,28 @@ func openBrowser() {
 }
 
 func isBranchExistsInOrigin(branchName string) bool {
-	cmd := exec.Command("git", "ls-remote", "--exit-code", ".", branchName)
-	err := cmd.Run()
+	cmd := exec.Command("git", "ls-remote", "--heads", "origin", branchName)
+	output, err := cmd.Output()
 	if err != nil {
+		fmt.Println("Error:", err)
 		return false
 	}
-	return true
+
+	outputStr := strings.TrimSpace(string(output))
+
+	lines := strings.Split(outputStr, "\n")
+	lineCount := len(lines)
+	fmt.Println(lineCount)
+
+	// hack, this is to be done better
+	return lineCount > 1
 }
 
 func createPr() {
-	currentBranchName, _ := getCurrentBranchName()
+	currentBranchName, err := getCurrentBranchName()
+	if err != nil {
+		log.Fatal("coult not get current branch name")
+	}
 
 	if !isBranchExistsInOrigin(currentBranchName) {
 		fmt.Println("Branch:", currentBranchName, "has not been pushed to origin. Please push and try again.")
@@ -218,21 +231,36 @@ func createPr() {
 		fmt.Println("Error getting repository path:", err)
 		os.Exit(1)
 	}
-	repositoryName := strings.TrimSpace(string(bytes.TrimSpace(repoPathOut)))
+	repositoryPath := strings.TrimSpace(string(bytes.TrimSpace(repoPathOut)))
+	repositoryName := filepath.Base(repositoryPath)
 	repoOwnerCmd := exec.Command("git", "remote", "-v")
 	remoteOutput, err := repoOwnerCmd.Output()
 	if err != nil {
 		fmt.Println("Error getting remote information:", err)
 		os.Exit(1)
 	}
-	remoteURL := string(remoteOutput)
-	remoteURLLines := strings.Split(remoteURL, "\n")
-	lastRemoteLine := remoteURLLines[len(remoteURLLines)-1]
-	remoteParts := strings.Fields(lastRemoteLine)
-	repoOwnerParts := strings.Split(remoteParts[1], "/")
-	repoOwner := repoOwnerParts[len(repoOwnerParts)-2]
 
-	var prTitle, prTicket, prType, prChangeType, srcBranch, destBranch string
+	fmt.Println(string(repositoryName))
+	fmt.Println(string(remoteOutput))
+
+	remoteURL := string(remoteOutput)
+
+	lines := strings.Split(remoteURL, "\n")
+
+	// hack :D
+	lastLine := lines[len(lines)-2]
+
+	parts := strings.Split(lastLine, ":")
+	if len(parts) < 2 {
+		fmt.Println("Invalid remote URL format")
+		return
+	}
+
+	// Take the first part after splitting by "/"
+	repoOwner := strings.Split(parts[1], "/")[0]
+	fmt.Println("Repository Owner:", repoOwner)
+
+	var prTitle, prTicket, prType, prChangeType, destBranch string
 
 	fmt.Print("Title of the Pull Request: ")
 	fmt.Scanln(&prTitle)
@@ -254,6 +282,7 @@ func createPr() {
 	fmt.Scanln(&prChangeType)
 
 	fmt.Print("Source branch name: ")
+	srcBranch := "feat/bc/create-pr-from-bc"
 	fmt.Scanln(&srcBranch)
 
 	fmt.Print("Destination branch name: ")
@@ -263,28 +292,26 @@ func createPr() {
 
 	prBody := fmt.Sprintf(`# Change Description
 
-%s
+	%s
 
--------------------------------------------
+	-------------------------------------------
 
+	# Type of PR
 
-# Type of PR
+	- [X] %s
 
-- [X] %s
+	-------------------------------------------
 
--------------------------------------------
+	# Type of Change
 
+	- [X] %s
 
-# Type of Change
+	-------------------------------------------
 
-- [X] %s
-
--------------------------------------------
-
-## Checklist before requesting a review
-- [X] I have performed a self-review of my code
-- [X] I am ready to get this code reviewed
-- [X] I have locally tested this code against linting and validating.`, prMessage.String(), prType, prChangeType)
+	## Checklist before requesting a review
+	- [X] I have performed a self-review of my code
+	- [X] I am ready to get this code reviewed
+	- [X] I have locally tested this code against linting and validating.`, prMessage.String(), prType, prChangeType)
 
 	payload := map[string]string{
 		"title": updatedTitle,
@@ -306,6 +333,7 @@ func createPr() {
 	}
 
 	githubURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/pulls", repoOwner, repositoryName)
+	fmt.Println(payload)
 	req, err := http.NewRequest("POST", githubURL, bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		fmt.Println("Error creating HTTP request:", err)
@@ -325,14 +353,14 @@ func createPr() {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	_, err = io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
 		os.Exit(1)
 	}
 
 	fmt.Println("Response Status:", resp.Status)
-	fmt.Println("Response Body:", string(body))
+	// fmt.Println("Response Body:", string(body))
 }
 
 func main() {
@@ -365,8 +393,8 @@ func main() {
 	case "pr":
 		createPr()
 		// Handle pull request creation
-		fmt.Println("Pull request creation functionality is not implemented yet.")
-		os.Exit(1)
+		// fmt.Println("Pull request creation functionality is not implemented yet.")
+		// os.Exit(1)
 	default:
 		fmt.Println("Could not understand the command. Try running \"bc help\".")
 		os.Exit(1)
