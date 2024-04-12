@@ -2,10 +2,15 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 )
@@ -191,6 +196,170 @@ func openBrowser() {
 	}
 }
 
+func isBranchExistsInOrigin(branchName string) bool {
+	cmd := exec.Command("git", "ls-remote", "--heads", "origin", branchName)
+	output, err := cmd.Output()
+	if err != nil {
+		fmt.Println("Error:", err)
+		return false
+	}
+
+	outputStr := strings.TrimSpace(string(output))
+
+	lines := strings.Split(outputStr, "\n")
+	lineCount := len(lines)
+
+	// hack, this is to be done better
+	return lineCount > 0
+}
+
+func ReadSentence(question string) string {
+	fmt.Printf("%s", question)
+
+	scanner := bufio.NewScanner(os.Stdin)
+
+	// Scan for the next token (until newline)
+	if scanner.Scan() {
+		// Get the text entered by the user
+		return scanner.Text()
+	}
+
+	// If an error occurs during scanning, return an empty string
+	return ""
+}
+
+func createPr() {
+	currentBranchName, err := getCurrentBranchName()
+	if err != nil {
+		log.Fatal("coult not get current branch name")
+	}
+
+	if !isBranchExistsInOrigin(currentBranchName) {
+		fmt.Println("Branch:", currentBranchName, "has not been pushed to origin. Please push and try again.")
+		os.Exit(1)
+	}
+
+	repoPathCmd := exec.Command("git", "rev-parse", "--show-toplevel")
+	repoPathOut, err := repoPathCmd.Output()
+	if err != nil {
+		fmt.Println("Error getting repository path:", err)
+		os.Exit(1)
+	}
+	repositoryPath := strings.TrimSpace(string(bytes.TrimSpace(repoPathOut)))
+	repositoryName := filepath.Base(repositoryPath)
+	repoOwnerCmd := exec.Command("git", "remote", "-v")
+	remoteOutput, err := repoOwnerCmd.Output()
+	if err != nil {
+		fmt.Println("Error getting remote information:", err)
+		os.Exit(1)
+	}
+
+	remoteURL := string(remoteOutput)
+
+	lines := strings.Split(remoteURL, "\n")
+
+	// hack :D
+	lastLine := lines[len(lines)-2]
+
+	parts := strings.Split(lastLine, ":")
+	if len(parts) < 2 {
+		fmt.Println("Invalid remote URL format")
+		return
+	}
+
+	// Take the first part after splitting by "/"
+	repoOwner := strings.Split(parts[1], "/")[0]
+
+	prTitle := ReadSentence("Title of the Pull Request: ")
+	prTicket := ReadSentence("Is this PR associated with any ticket (eg: JIRA-124): ")
+	prType := ReadSentence("PR type (eg: SHOW, SHIP. ASK): ")
+	prChangeType := ReadSentence("What kind of change is this (eg: Bufix, Feature, Breaking Change, Doc update): ")
+	srcBranch := ReadSentence("Source branch name: ")
+	destBranch := ReadSentence("Destination branch name: ")
+
+	fmt.Println("Explain work done in this PR (When finished hit ctrl-d on a new line to proceed):")
+	scanner := bufio.NewScanner(os.Stdin)
+	var prMessage strings.Builder
+	for scanner.Scan() {
+		prMessage.WriteString(scanner.Text())
+		prMessage.WriteString("\n")
+	}
+
+	updatedTitle := fmt.Sprintf("%s(%s): %s", prTicket, prType, prTitle)
+
+	prBody := fmt.Sprintf(`# Change Description
+
+	%s
+
+	-------------------------------------------
+
+	# Type of PR
+
+	- [X] %s
+
+	-------------------------------------------
+
+	# Type of Change
+
+	- [X] %s
+
+	-------------------------------------------
+
+	## Checklist before requesting a review
+	- [X] I have performed a self-review of my code
+	- [X] I am ready to get this code reviewed
+	- [X] I have locally tested this code against linting and validating.`, prMessage.String(), prType, prChangeType)
+
+	payload := map[string]string{
+		"title": updatedTitle,
+		"body":  prBody,
+		"head":  srcBranch,
+		"base":  destBranch,
+	}
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		fmt.Println("Error marshaling payload:", err)
+		os.Exit(1)
+	}
+
+	ghToken := os.Getenv("GH_TOKEN")
+	if ghToken == "" {
+		fmt.Println("GitHub token not set")
+		os.Exit(1)
+	}
+
+	githubURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/pulls", repoOwner, repositoryName)
+	req, err := http.NewRequest("POST", githubURL, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		fmt.Println("Error creating HTTP request:", err)
+		os.Exit(1)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+ghToken)
+	req.Header.Set("Accept", "application/vnd.github+json")
+	req.Header.Set("X-GitHub-Api-Version", "2022-11-28")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error making HTTP request:", err)
+		os.Exit(1)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		os.Exit(1)
+	}
+
+	if strings.Contains(string(body), "A pull request already exists for") {
+		fmt.Println("\n\nPR already exists for that branch. Please close the PR to create new one.")
+	}
+}
+
 func main() {
 	if !hasGit() {
 		fmt.Println("This is not a git repo. I am not needed here. Ta Ta !!!")
@@ -219,9 +388,7 @@ func main() {
 	case "help":
 		usage()
 	case "pr":
-		// Handle pull request creation
-		fmt.Println("Pull request creation functionality is not implemented yet.")
-		os.Exit(1)
+		createPr()
 	default:
 		fmt.Println("Could not understand the command. Try running \"bc help\".")
 		os.Exit(1)
