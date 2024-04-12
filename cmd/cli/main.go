@@ -208,10 +208,25 @@ func isBranchExistsInOrigin(branchName string) bool {
 
 	lines := strings.Split(outputStr, "\n")
 	lineCount := len(lines)
-	fmt.Println(lineCount)
+	// fmt.Println(lineCount)
 
 	// hack, this is to be done better
-	return lineCount > 1
+	return lineCount > 0
+}
+
+func ReadSentence(question string) string {
+	fmt.Printf("%s", question)
+
+	scanner := bufio.NewScanner(os.Stdin)
+
+	// Scan for the next token (until newline)
+	if scanner.Scan() {
+		// Get the text entered by the user
+		return scanner.Text()
+	}
+
+	// If an error occurs during scanning, return an empty string
+	return ""
 }
 
 func createPr() {
@@ -240,9 +255,6 @@ func createPr() {
 		os.Exit(1)
 	}
 
-	fmt.Println(string(repositoryName))
-	fmt.Println(string(remoteOutput))
-
 	remoteURL := string(remoteOutput)
 
 	lines := strings.Split(remoteURL, "\n")
@@ -258,15 +270,22 @@ func createPr() {
 
 	// Take the first part after splitting by "/"
 	repoOwner := strings.Split(parts[1], "/")[0]
-	fmt.Println("Repository Owner:", repoOwner)
+	// fmt.Println("Repository Owner:", repoOwner)
 
-	var prTitle, prTicket, prType, prChangeType, destBranch string
+	// var prTitle, prTicket, prType, prChangeType, srcBranch, destBranch string
 
-	fmt.Print("Title of the Pull Request: ")
-	fmt.Scanln(&prTitle)
+	// fmt.Print("Title of the Pull Request: ")
+	// fmt.Scanln(&prTitle)
 
-	fmt.Print("Is this PR associated with any ticket (eg: JIRA-124): ")
-	fmt.Scanln(&prTicket)
+	prTitle := ReadSentence("Title of the Pull Request: ")
+	prTicket := ReadSentence("Is this PR associated with any ticket (eg: JIRA-124): ")
+	prType := ReadSentence("PR type (eg: SHOW, SHIP. ASK): ")
+	prChangeType := ReadSentence("What kind of change is this (eg: Bufix, Feature, Breaking Change, Doc update): ")
+	srcBranch := ReadSentence("Source branch name: ")
+	destBranch := ReadSentence("Destination branch name: ")
+
+	// fmt.Print("Is this PR associated with any ticket (eg: JIRA-124): ")
+	// fmt.Scanln(&prTicket)
 
 	fmt.Println("Explain work done in this PR (When finished hit ctrl-d on a new line to proceed):")
 	scanner := bufio.NewScanner(os.Stdin)
@@ -275,18 +294,18 @@ func createPr() {
 		prMessage.WriteString(scanner.Text())
 		prMessage.WriteString("\n")
 	}
-	fmt.Print("PR type (eg: SHOW, SHIP. ASK): ")
-	fmt.Scanln(&prType)
 
-	fmt.Print("What kind of change is this (eg: Bufix, Feature, Breaking Change, Doc update): ")
-	fmt.Scanln(&prChangeType)
+	// fmt.Print("PR type (eg: SHOW, SHIP. ASK): ")
+	// fmt.Scanln(&prType)
 
-	fmt.Print("Source branch name: ")
-	srcBranch := "feat/bc/create-pr-from-bc"
-	fmt.Scanln(&srcBranch)
+	// fmt.Print("What kind of change is this (eg: Bufix, Feature, Breaking Change, Doc update): ")
+	// fmt.Scanln(&prChangeType)
 
-	fmt.Print("Destination branch name: ")
-	fmt.Scanln(&destBranch)
+	// fmt.Print("Source branch name: ")
+	// fmt.Scanln(&srcBranch)
+
+	// fmt.Print("Destination branch name: ")
+	// fmt.Scanln(&destBranch)
 
 	updatedTitle := fmt.Sprintf("%s(%s): %s", prTicket, prType, prTitle)
 
@@ -333,7 +352,6 @@ func createPr() {
 	}
 
 	githubURL := fmt.Sprintf("https://api.github.com/repos/%s/%s/pulls", repoOwner, repositoryName)
-	fmt.Println(payload)
 	req, err := http.NewRequest("POST", githubURL, bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		fmt.Println("Error creating HTTP request:", err)
@@ -353,14 +371,15 @@ func createPr() {
 	}
 	defer resp.Body.Close()
 
-	_, err = io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
 		os.Exit(1)
 	}
 
-	fmt.Println("Response Status:", resp.Status)
-	// fmt.Println("Response Body:", string(body))
+	if strings.Contains(string(body), "A pull request already exists for") {
+		fmt.Println("\n\nPR already exists for that branch. Please close the PR to create new one.")
+	}
 }
 
 func main() {
