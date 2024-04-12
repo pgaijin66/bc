@@ -208,7 +208,6 @@ func isBranchExistsInOrigin(branchName string) bool {
 
 	lines := strings.Split(outputStr, "\n")
 	lineCount := len(lines)
-	// fmt.Println(lineCount)
 
 	// hack, this is to be done better
 	return lineCount > 0
@@ -270,12 +269,6 @@ func createPr() {
 
 	// Take the first part after splitting by "/"
 	repoOwner := strings.Split(parts[1], "/")[0]
-	// fmt.Println("Repository Owner:", repoOwner)
-
-	// var prTitle, prTicket, prType, prChangeType, srcBranch, destBranch string
-
-	// fmt.Print("Title of the Pull Request: ")
-	// fmt.Scanln(&prTitle)
 
 	prTitle := ReadSentence("Title of the Pull Request: ")
 	prTicket := ReadSentence("Is this PR associated with any ticket (eg: JIRA-124): ")
@@ -284,9 +277,6 @@ func createPr() {
 	srcBranch := ReadSentence("Source branch name: ")
 	destBranch := ReadSentence("Destination branch name: ")
 
-	// fmt.Print("Is this PR associated with any ticket (eg: JIRA-124): ")
-	// fmt.Scanln(&prTicket)
-
 	fmt.Println("Explain work done in this PR (When finished hit ctrl-d on a new line to proceed):")
 	scanner := bufio.NewScanner(os.Stdin)
 	var prMessage strings.Builder
@@ -294,18 +284,6 @@ func createPr() {
 		prMessage.WriteString(scanner.Text())
 		prMessage.WriteString("\n")
 	}
-
-	// fmt.Print("PR type (eg: SHOW, SHIP. ASK): ")
-	// fmt.Scanln(&prType)
-
-	// fmt.Print("What kind of change is this (eg: Bufix, Feature, Breaking Change, Doc update): ")
-	// fmt.Scanln(&prChangeType)
-
-	// fmt.Print("Source branch name: ")
-	// fmt.Scanln(&srcBranch)
-
-	// fmt.Print("Destination branch name: ")
-	// fmt.Scanln(&destBranch)
 
 	updatedTitle := fmt.Sprintf("%s(%s): %s", prTicket, prType, prTitle)
 
@@ -411,9 +389,6 @@ func main() {
 		usage()
 	case "pr":
 		createPr()
-		// Handle pull request creation
-		// fmt.Println("Pull request creation functionality is not implemented yet.")
-		// os.Exit(1)
 	default:
 		fmt.Println("Could not understand the command. Try running \"bc help\".")
 		os.Exit(1)
