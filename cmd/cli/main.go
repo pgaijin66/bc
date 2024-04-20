@@ -22,6 +22,10 @@ const (
 
 var MainBranchOptions = []string{"main", "master"}
 
+var (
+	version = "1.0.0"
+)
+
 // Helper functions
 func hasGit() bool {
 	// _, err := os.Stat(".git")
@@ -360,6 +364,10 @@ func createPr() {
 	}
 }
 
+func getVersion() {
+	fmt.Println(version)
+}
+
 func main() {
 	if !hasGit() {
 		fmt.Println("This is not a git repo. I am not needed here. Ta Ta !!!")
@@ -389,6 +397,8 @@ func main() {
 		usage()
 	case "pr":
 		createPr()
+	case "version":
+		getVersion()
 	default:
 		fmt.Println("Could not understand the command. Try running \"bc help\".")
 		os.Exit(1)
@@ -407,6 +417,7 @@ Available commands:
     branch      Creates a new branch
     pr          Creates a new pull request
     open        Open relevant repo in browser
+    version     Show current version
 
 Example usage:
 
